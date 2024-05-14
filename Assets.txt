@@ -1,0 +1,30 @@
+Anim Name TexName FrameCnt SpeedFrms 
+Texture Grass assets/grass.png
+Texture Cobblestone assets/cobblestone.png
+Texture HalfGrass assets/halfgrass.png
+Texture WaterLevel assets/waterlevel.png
+Texture Water assets/water.png
+Texture HalfWater assets/halfwater.png
+Texture Background assets/background.png
+Texture Bush assets/bush.png
+Texture Leave assets/leave.png
+Texture Standing assets/standing.png
+Texture Running assets/running.png
+Texture Jumping assets/jumping.png
+Texture Shooting assets/shooting.png
+Texture RunningShooting assets/running_shooting.png
+Animation Grass Grass 1 0
+Animation Cobblestone Cobblestone 1 0
+Animation HalfGrass HalfGrass 1 0
+Animation WaterLevel WaterLevel 1 0
+Animation Water Water 1 0
+Animation HalfWater HalfWater 1 0
+Animation Background Background 1 0
+Animation Bush Bush 1 0
+Animation Leave Leave 1 0
+Animation Standing Standing 2 20
+Animation Running Running 4 8
+Animation Jumping Jumping 4 5
+Animation Shooting Shooting 2 3
+Animation RunningShooting RunningShooting 4 8
+Font Enchrome assets/enchrome-ascii.ttf
