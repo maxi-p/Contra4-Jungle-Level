@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 #include "Assets.h"
+#include "Scene.h"
 #include "Scene_Play.h"
 // #include "Scene_Menu.h"
 
@@ -53,15 +54,13 @@ void GameEngine::sUserInput()
 
         if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
         {
-            // if the current scene does not have an action associated with the key, skip the event
-            if (currentScene()->getActionMap().find(event.key.code) == currentScene()->getActionMap().end()) { continue;}
-
-            // determine start or end action by whether it was key pres or release
+            // value for this key does NOT exit
+            if (currentScene()->getActionMap().find(event.key.code) == currentScene()->getActionMap().end())
+            {
+                continue;
+            }
             const std::string actionType = (event.type == sf::Event::KeyPressed) ? "START" : "END";
-
-            // look up the action and send the action to the scene
-            // TODO: TODO TODO TODO
-            // currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
+            currentScene()->sDoAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
         }
     }
 }
@@ -109,6 +108,17 @@ Assets& GameEngine::assets()
 bool GameEngine::isRunning()
 {
     return m_running && m_window.isOpen();
+}
+
+void Scene::drawLine(const Vec2& p1, const Vec2& p2)
+{
+    sf::Vertex line[2];
+    line[0].position = sf::Vector2f(p1.x, p1.y);
+    line[0].color  = sf::Color::Red;
+    line[1].position = sf::Vector2f(p2.x, p2.y);
+    line[1].color = sf::Color::Red;
+
+    m_game->window().draw(line, 2, sf::Lines);
 }
 
 

@@ -50,6 +50,10 @@ bool Vec2::operator != (const Vec2& rhs) const
 {
     return x != rhs.x || y != rhs.y;
 }
+bool Vec2::operator >= (const float val) const
+{
+    return x >= val && y >= val;
+}
 
 void Vec2::operator += (const Vec2& rhs)
 {

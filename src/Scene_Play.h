@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include <map>
 #include <memory>
-
+#include "Physics.h"
 #include "EntityManager.h"
 
 class Scene_Play : public Scene
@@ -20,9 +20,10 @@ public:
     PlayerConfig                m_playerConfig;
     bool                        m_drawTextures      = true;
     bool                        m_drawCollision     = true;
-    bool                        m_drawGrid          = false;
+    bool                        m_drawGrid          = true;
     const Vec2                  m_gridSize          = { 64, 64 };
     sf::Text                    m_gridText;
+    Physics                     m_physics;
 
     Scene_Play(GameEngine* gameEngine);
     Scene_Play(GameEngine* gameEngine, const std::string& levelPath);
@@ -35,6 +36,7 @@ public:
     Vec2 gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
     void spawnPlayer();
     void spawnBullet(std::shared_ptr<Entity> entity);
+    void sState();
     void sMovement();
     void sLifespan();
     void sCollision();

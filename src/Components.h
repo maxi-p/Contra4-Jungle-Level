@@ -83,6 +83,7 @@ class CState : public Component
 {
 public:
     std::string state = "jumping";
+    size_t timer = 0;
     CState() {}
     CState(const std::string& s) : state(s) {}
 };

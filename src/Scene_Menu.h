@@ -23,7 +23,12 @@ protected:
 
 public:
 
-    Scene_Menu(GameEngine * gameEngine = nullptr);
+    Scene_Menu(GameEngine * gameEngine = nullptr, std::vector<std::string> strings)
+          : Scene(gameEngine),
+            m_menuStrings(strings)
+    {
+        
+    }
     void sRender();
     void sDoAction(const Action& action);
 };

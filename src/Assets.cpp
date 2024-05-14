@@ -33,13 +33,11 @@ void Assets::loadFromFile(const std::string& assetsPath)
 void Assets::addTexture(std::string& name, std::string& path)
 {
     sf::Texture texture;
-    std::cout << path << "\n";
     if (!texture.loadFromFile(path))
     {
         std::cout << "Error in opening a texture file...\n";
         return;
     }
-    std::cout << "adding texture " << name << " " << "path\n";
     m_textures[name] = texture;
 }
 
@@ -51,13 +49,11 @@ void Assets::addAnimation(std::string& name, std::string textureName, size_t fra
 
 void Assets::addSound(std::string& name, std::string& path)
 {
-    std::cout << path << "\n";
 }
 
 void Assets::addFont(std::string& name, std::string& path)
 {
     sf::Font font;
-    std::cout << path << "\n";
     if (!font.loadFromFile(path))
     {
         std::cout << "Error in loading a font\n";

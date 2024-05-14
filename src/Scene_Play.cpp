@@ -1,5 +1,4 @@
 #include "Scene_Play.h"
-#include "Physics.h"
 #include "Assets.h"
 #include "GameEngine.h"
 #include "Components.h"
@@ -36,7 +35,10 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Escape,    "QUIT");
     registerAction(sf::Keyboard::T,         "TOGGLE_TEXTURE");
     registerAction(sf::Keyboard::C,         "TOGGLE_COLLISION");
-    registerAction(sf::Keyboard::G,         "TOGGLE_GRID");
+    registerAction(sf::Keyboard::G,         "TOOGLE_GRID");
+    registerAction(sf::Keyboard::Space,     "JUMP");
+    registerAction(sf::Keyboard::D,         "RIGHT");
+    registerAction(sf::Keyboard::A,         "LEFT");
 
     // TODO: register all other gameplay Actions
 
@@ -73,12 +75,29 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     //some sample entities
     auto brick = m_entityManager.addEntity("tile");
-    // IMPORTANT: 
     brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
     brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
     brick->addComponent<CTransform>(Vec2(400, 480));
-    // NOTE:
-    // brick->addComponent ...
+    
+    brick = m_entityManager.addEntity("tile");
+    brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
+    brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
+    brick->addComponent<CTransform>(Vec2(464, 480));
+
+    brick = m_entityManager.addEntity("tile");
+    brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
+    brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
+    brick->addComponent<CTransform>(Vec2(528, 480));
+
+    brick = m_entityManager.addEntity("tile");
+    brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
+    brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
+    brick->addComponent<CTransform>(Vec2(592, 480));
+    
+    auto grass = m_entityManager.addEntity("tile");
+    // IMPORTANT: 
+    grass->addComponent<CAnimation>(m_game->assets().getAnimation("Leave"), true);
+    grass->addComponent<CTransform>(Vec2(900, 480));
 
     // if( brick->getComponent<CAnimation>().animation.getName() == "Brick")
     {
@@ -86,7 +105,6 @@ void Scene_Play::loadLevel(const std::string& filename)
     }
 
     auto block = m_entityManager.addEntity("tile");
-    std::cout << "added tile\n";
     block->addComponent<CAnimation>(m_game->assets().getAnimation("Cobblestone"), true);
     block->addComponent<CTransform>(Vec2(200, 200));
     // add a bounding box, this will not show up if we press the 'C' key
@@ -116,10 +134,13 @@ void Scene_Play::spawnPlayer()
 {
     // here is a sample player entity which you can use to construct other entities
     m_player = m_entityManager.addEntity("player");
-    std::cout << "player created: " << &m_player << "\n";
     m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Running"), true);
     m_player->addComponent<CTransform>(Vec2(224, 352));
-    m_player->addComponent<CBoundingBox>(m_game->assets().getAnimation("Running")->getSize());
+    
+    m_player->addComponent<CState>("standing");
+    m_player->addComponent<CGravity>(0.6);
+    Vec2 skinnySize(m_game->assets().getAnimation("Running")->getSize().x/2, m_game->assets().getAnimation("Grass")->getSize().y);
+    m_player->addComponent<CBoundingBox>(skinnySize);
 
     // TODO: be sure to add the remaining components to the player 
 }
@@ -133,7 +154,7 @@ void Scene_Play::update()
 {
     m_entityManager.update();
     // // TODO: implement pause functionality
-
+    sState();
     sMovement();
     sLifespan();
     sCollision();
@@ -141,13 +162,64 @@ void Scene_Play::update()
     sRender();
     m_currentFrame++;
 }
+void Scene_Play::sState()
+{
+    for ( auto e : m_entityManager.getEntities() )
+    {
+        if ( e->getComponent<CState>().has  && e->getComponent<CState>().timer != 0 )
+        {
+            e->getComponent<CState>().timer--;
+            
+            if( e->getComponent<CState>().timer == 0 )
+            {
+                e->getComponent<CState>().state = "falling";
+            }
+
+        }
+    }
+}
+
 
 void Scene_Play::sMovement()
 {
-    // TODO: implement player movement / jumping based on its CInput component
-    // TODO: implement gravity's effect on the player
-    // TODO: implement the maximum player speed in both X and Y directions
-    // NOTE: Setting an entity's scale.x to -1/1 will make it face to the left/right
+    Vec2 playerVelocity(0.0f, m_player->getComponent<CTransform>().velocity.y);
+    // std::cout << m_player->getComponent<CState>().state << "\n";
+    if( m_player->getComponent<CInput>().up && m_player->getComponent<CState>().state == "jumping" )
+    {
+        playerVelocity.y = -10;
+    }
+    if ( m_player->getComponent<CInput>().left )
+    {
+        playerVelocity.x = -7;
+    }
+    if ( m_player->getComponent<CInput>().right )
+    {
+        playerVelocity.x = 7;
+    }
+
+    m_player->getComponent<CTransform>().velocity = playerVelocity;
+
+    for ( auto e : m_entityManager.getEntities() )
+    {
+
+        e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
+
+        if (e->getComponent<CGravity>().has )
+        {
+            e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
+            
+            //Max speed
+            if ( e->getComponent<CTransform>().velocity.y >= 10 )
+            {
+                e->getComponent<CTransform>().velocity.y = 10;
+            }
+            if ( e->getComponent<CTransform>().velocity.x >= 10 )
+            {
+                e->getComponent<CTransform>().velocity.x = 10;
+            }
+        }
+        e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
+    }
 }
 
 void Scene_Play::sLifespan()
@@ -157,14 +229,51 @@ void Scene_Play::sLifespan()
 
 void Scene_Play::sCollision()
 {
-    // REMEMBER:: SFML .....
-    //
-    //
-    //
-    //
-
-    // TODO Implement Physics::GetOverlap() function, use it inside this function
-
+    for ( auto e : m_entityManager.getEntities() )
+    {
+        if ( e->tag() != m_player->tag() && e->getComponent<CBoundingBox>().has )
+        {
+            Vec2 overlap = m_physics.GetOverlap(m_player, e);
+            if( overlap >= 0 )
+            {
+                Vec2 prevOverlap = m_physics.GetPreviousOverlap(m_player, e);
+                if (prevOverlap.x > 0)
+                {
+                    if (m_player->getComponent<CTransform>().pos.y < e->getComponent<CTransform>().pos.y)
+                    {
+                        m_player->getComponent<CTransform>().pos.y -= overlap.y;
+                        if( m_player->getComponent<CState>().state != "running" )
+                        {
+                            m_player->getComponent<CState>().state = "standing";
+                            m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Standing");
+                            m_player->getComponent<CState>().timer = 0;
+                        }
+                        else
+                        {
+                            m_player->getComponent<CState>().state = "running";
+                            m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
+                            m_player->getComponent<CState>().timer = 0;
+                        }
+                    }
+                    else
+                    {
+                        m_player->getComponent<CTransform>().pos.y += overlap.y;
+                    }
+                }
+                else if (prevOverlap.y > 0)
+                {
+                    if (m_player->getComponent<CTransform>().pos.x < e->getComponent<CTransform>().pos.x )
+                    {
+                        m_player->getComponent<CTransform>().pos.x -= overlap.x;
+                    }
+                    else 
+                    {
+                        m_player->getComponent<CTransform>().pos.x += overlap.x;
+                    }
+                }
+            }
+        }
+    }
     // TODO: Implement bullet / tile collisions
     //
     // TODO: Imlement player / tile collision and resolutions
@@ -179,16 +288,89 @@ void Scene_Play::sDoAction(const Action& action)
 {
     if(action.type() == "START")
     {
-                 if (action.name() == "TOGGLE_TEXTURE" )    { m_drawTextures = !m_drawTextures; }
-            else if (action.name() == "TOGGLE_COLLISION" )  { m_drawCollision = !m_drawCollision; }
-            else if (action.name() == "TOOGLE_GRID" )       { m_drawGrid = !m_drawGrid; }
-            else if (action.name() == "PAUSE" )             { setPaused(!m_paused); }
-            else if (action.name() == "QUIT" )              { onEnd(); }
+        if (action.name() == "TOGGLE_TEXTURE" )   
+        { 
+            m_drawTextures = !m_drawTextures; 
+        }
+        else if (action.name() == "TOGGLE_COLLISION" ) 
+        { 
+            m_drawCollision = !m_drawCollision; 
+        }
+        else if (action.name() == "TOOGLE_GRID" )      
+        { 
+            m_drawGrid = !m_drawGrid; 
+        }
+        else if (action.name() == "JUMP" )             
+        { 
+            if( m_player->getComponent<CState>().state != "falling" )
+            {
+                if ( m_player->getComponent<CState>().state != "jumping" )
+                {
+                    m_player->getComponent<CState>().timer = 15;
+                    m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Jumping");
+                }
+                m_player->getComponent<CState>().state = "jumping";
+                m_player->getComponent<CInput>().up = true;
+            }
+        }
+        else if (action.name() == "RIGHT" )             
+        { 
+            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
+            {
+                std::cout << "setting to RUNNING\n";
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
+                m_player->getComponent<CState>().state = "running";
+                m_player->getComponent<CState>().timer = 0;
+            }
+            m_player->getComponent<CInput>().right = true; 
+        }
+        else if (action.name() == "LEFT" )             
+        { 
+            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
+            {
+                std::cout << "setting to RUNNING\n";
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
+                m_player->getComponent<CState>().state = "running";
+                m_player->getComponent<CState>().timer = 0;
+            }
+            m_player->getComponent<CInput>().left = true; 
+        }
+        else if (action.name() == "PAUSE" )            
+        { 
+            setPaused(!m_paused); 
+        }
+        else if (action.name() == "QUIT" )             
+        { 
+            onEnd(); 
+        }
 
     }
     else if (action.type() == "END")
     {
-
+        if (action.name() == "JUMP" )             
+        { 
+            m_player->getComponent<CInput>().up = false; 
+        }
+        else if (action.name() == "RIGHT" )             
+        { 
+            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
+            {
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Standing");
+                m_player->getComponent<CState>().state = "standing";
+                m_player->getComponent<CState>().timer = 0;
+            }
+            m_player->getComponent<CInput>().right = false; 
+        }
+        else if (action.name() == "LEFT" )             
+        { 
+            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
+            {
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Standing");
+                m_player->getComponent<CState>().state = "standing";
+                m_player->getComponent<CState>().timer = 0;
+            }
+            m_player->getComponent<CInput>().left = false; 
+        }
     }
 }
 
@@ -288,6 +470,7 @@ void Scene_Play::sRender()
 
     m_game->window().display();
 }
+
 
 
 
