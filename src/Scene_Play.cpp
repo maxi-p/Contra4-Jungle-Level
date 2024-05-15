@@ -3,8 +3,9 @@
 #include "GameEngine.h"
 #include "Components.h"
 #include "Action.h"
-
+#include <fstream>
 #include <iostream>
+#include <string>
 
 Scene_Play::Scene_Play(GameEngine* gameEngine)
     : Scene(gameEngine)
@@ -48,15 +49,18 @@ void Scene_Play::init(const std::string& levelPath)
     loadLevel(levelPath);
 }
 
+// animation was already given to this entity in the first place
 Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
 {
-    // TODO:
-    //
-    //
-    //
-    //
+    Vec2 entitySize = entity->getComponent<CAnimation>().animation->getSize();
+    
+    gridX = gridX * 64;
+    gridY = m_game->window().getSize().y - gridY * 64;
 
-    return Vec2(0, 0);
+    float entityMidX = gridX + entitySize.x/2;
+    float entityMidY = gridY - entitySize.y/2;
+
+    return Vec2(entityMidX, entityMidY);
 }
 
 void Scene_Play::loadLevel(const std::string& filename)
@@ -64,70 +68,52 @@ void Scene_Play::loadLevel(const std::string& filename)
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
 
-    // TODO:  
-    //
-    //
+    std::cout << filename << "\n";
 
-    // NOTE:
-    //
+    std::ifstream file;
+    file.open(filename);
 
+    std::string type, animation, gX, gY, cW, cH, sX, sY, sM, G, B;
+    
+    while ( file >> type )
+    {
+        if( type == "Tile" )
+        {
+            file >> animation >> gX >> gY;
+
+            auto brick = m_entityManager.addEntity("tile");
+            brick->addComponent<CAnimation>(m_game->assets().getAnimation(animation), true);
+            brick->addComponent<CBoundingBox>(m_game->assets().getAnimation(animation)->getSize());
+            brick->addComponent<CTransform>(gridToMidPixel(std::stof(gX), std::stof(gY), brick));
+        }
+        else if( type == "Dec" )
+        {
+            file >> animation >> gX >> gY;
+
+            auto grass = m_entityManager.addEntity("dec");
+            grass->addComponent<CAnimation>(m_game->assets().getAnimation(animation), true);
+            grass->addComponent<CTransform>(gridToMidPixel(std::stof(gX), std::stof(gY), grass));
+        }
+        else if( type == "Player" )
+        {
+            file >> gX >> gY >> cW >> cH >> sX >> sY >> sM >> G >> B;
+            m_playerConfig.X        = std::stof(gX);
+            m_playerConfig.Y        = std::stof(gY);
+            m_playerConfig.CW       = std::stof(cW);
+            m_playerConfig.CH       = std::stof(cH);
+            m_playerConfig.SPEED    = std::stof(sX);
+            m_playerConfig.JUMP     = std::stof(sY);
+            m_playerConfig.MAXSPEED = std::stof(sM);
+            m_playerConfig.GRAVITY  = std::stof(G);
+            m_playerConfig.WEAPON   = std::stof(B);
+        }
+    }
     spawnPlayer();
-
-    //some sample entities
-    auto brick = m_entityManager.addEntity("tile");
-    brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
-    brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
-    brick->addComponent<CTransform>(Vec2(400, 480));
-    
-    brick = m_entityManager.addEntity("tile");
-    brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
-    brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
-    brick->addComponent<CTransform>(Vec2(464, 480));
-
-    brick = m_entityManager.addEntity("tile");
-    brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
-    brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
-    brick->addComponent<CTransform>(Vec2(528, 480));
-
-    brick = m_entityManager.addEntity("tile");
-    brick->addComponent<CAnimation>(m_game->assets().getAnimation("Grass"), true);
-    brick->addComponent<CBoundingBox>(m_game->assets().getAnimation("Grass")->getSize());
-    brick->addComponent<CTransform>(Vec2(592, 480));
-    
-    auto grass = m_entityManager.addEntity("tile");
-    // IMPORTANT: 
-    grass->addComponent<CAnimation>(m_game->assets().getAnimation("Leave"), true);
-    grass->addComponent<CTransform>(Vec2(900, 480));
 
     // if( brick->getComponent<CAnimation>().animation.getName() == "Brick")
     {
         // std::cout << "This could be a good way of identifying if a tile is a brick\n";
     }
-
-    auto block = m_entityManager.addEntity("tile");
-    block->addComponent<CAnimation>(m_game->assets().getAnimation("Cobblestone"), true);
-    block->addComponent<CTransform>(Vec2(200, 200));
-    // add a bounding box, this will not show up if we press the 'C' key
-    block->addComponent<CBoundingBox>(m_game->assets().getAnimation("Cobblestone")->getSize());
-
-    auto question = m_entityManager.addEntity("tile");
-    question->addComponent<CAnimation>(m_game->assets().getAnimation("HalfWater"), true);
-    question->addComponent<CBoundingBox>(m_game->assets().getAnimation("HalfWater")->getSize());
-    question->addComponent<CTransform>(Vec2(700, 700));
-
-    // NOTE:
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
 }
 
 void Scene_Play::spawnPlayer()
@@ -135,14 +121,11 @@ void Scene_Play::spawnPlayer()
     // here is a sample player entity which you can use to construct other entities
     m_player = m_entityManager.addEntity("player");
     m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Running"), true);
-    m_player->addComponent<CTransform>(Vec2(224, 352));
-    
+    m_player->addComponent<CTransform>(Vec2(464, 200));
     m_player->addComponent<CState>("standing");
     m_player->addComponent<CGravity>(0.6);
     Vec2 skinnySize(m_game->assets().getAnimation("Running")->getSize().x/2, m_game->assets().getAnimation("Grass")->getSize().y);
     m_player->addComponent<CBoundingBox>(skinnySize);
-
-    // TODO: be sure to add the remaining components to the player 
 }
 
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
@@ -174,7 +157,6 @@ void Scene_Play::sState()
             {
                 e->getComponent<CState>().state = "falling";
             }
-
         }
     }
 }
@@ -183,7 +165,6 @@ void Scene_Play::sState()
 void Scene_Play::sMovement()
 {
     Vec2 playerVelocity(0.0f, m_player->getComponent<CTransform>().velocity.y);
-    // std::cout << m_player->getComponent<CState>().state << "\n";
     if( m_player->getComponent<CInput>().up && m_player->getComponent<CState>().state == "jumping" )
     {
         playerVelocity.y = -10;
@@ -317,7 +298,6 @@ void Scene_Play::sDoAction(const Action& action)
         { 
             if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
             {
-                std::cout << "setting to RUNNING\n";
                 m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
                 m_player->getComponent<CState>().state = "running";
                 m_player->getComponent<CState>().timer = 0;
@@ -328,7 +308,6 @@ void Scene_Play::sDoAction(const Action& action)
         { 
             if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
             {
-                std::cout << "setting to RUNNING\n";
                 m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
                 m_player->getComponent<CState>().state = "running";
                 m_player->getComponent<CState>().timer = 0;

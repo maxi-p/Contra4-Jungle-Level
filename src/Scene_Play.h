@@ -10,7 +10,7 @@ class Scene_Play : public Scene
 {
     struct PlayerConfig
     {
-        float X, Y, CX, CV, SPEEN, MAXSPEED, JUMP, GRAVITY;
+        float X, Y, CW, CH, SPEED, MAXSPEED, JUMP, GRAVITY;
         std::string WEAPON;
     };
 
@@ -19,8 +19,8 @@ public:
     std::string                 m_levelPath;
     PlayerConfig                m_playerConfig;
     bool                        m_drawTextures      = true;
-    bool                        m_drawCollision     = true;
-    bool                        m_drawGrid          = true;
+    bool                        m_drawCollision     = false;
+    bool                        m_drawGrid          = false;
     const Vec2                  m_gridSize          = { 64, 64 };
     sf::Text                    m_gridText;
     Physics                     m_physics;
