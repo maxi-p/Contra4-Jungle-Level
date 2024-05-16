@@ -19,6 +19,4 @@ Vec2 Physics::GetPreviousOverlap(std::shared_ptr<Entity> a, std::shared_ptr<Enti
     float oX = a->getComponent<CBoundingBox>().size.x/2 + b->getComponent<CBoundingBox>().size.x/2 - delta.x;
     float oY = a->getComponent<CBoundingBox>().size.y/2 + b->getComponent<CBoundingBox>().size.y/2 - delta.y;
     return Vec2(oX, oY);
-
-    return Vec2(0, 0);
 }

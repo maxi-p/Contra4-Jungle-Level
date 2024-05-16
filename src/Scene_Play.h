@@ -33,6 +33,7 @@ public:
     void update();
     void sDoAction(const Action& action);
     void sRender();
+    void setPlayerAnimation(std::string name);
     Vec2 gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
     void spawnPlayer();
     void spawnBullet(std::shared_ptr<Entity> entity);
@@ -42,6 +43,7 @@ public:
     void sCollision();
     void sAnimation();
     void onEnd();
+    void maxSpeed(std::shared_ptr<Entity> entity);
     void sCollisionHelper(std::shared_ptr<Entity> entity, std::shared_ptr<Entity> e);
     size_t width() const;
     size_t height() const;

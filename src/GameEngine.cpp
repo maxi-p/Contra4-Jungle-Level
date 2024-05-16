@@ -52,14 +52,25 @@ void GameEngine::sUserInput()
             }
         }
 
+        // Keyboard
         if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
         {
-            // value for this key does NOT exit
-            if (currentScene()->getActionMap().find(event.key.code) == currentScene()->getActionMap().end())
+            if (currentScene()->getActionMap().find(event.key.code+7) == currentScene()->getActionMap().end())
             {
                 continue;
             }
             const std::string actionType = (event.type == sf::Event::KeyPressed) ? "START" : "END";
+            currentScene()->sDoAction(Action(currentScene()->getActionMap().at(event.key.code+7), actionType));
+        }
+
+        // Mouse
+        if (event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased)
+        {
+            if (currentScene()->getActionMap().find(event.key.code) == currentScene()->getActionMap().end())
+            {
+                continue;
+            }
+            const std::string actionType = (event.type == sf::Event::MouseButtonPressed) ? "START" : "END";
             currentScene()->sDoAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
         }
     }

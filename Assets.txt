@@ -11,7 +11,7 @@ Texture Leave assets/leave.png
 Texture BG assets/stars_bg.jpg
 
 Texture PlayerStanding assets/player_standing.png
-Texture PlayerRunning assets/player_running1.png
+Texture PlayerRunning assets/player_running.png
 Texture PlayerJumping assets/player_jumping.png
 Texture PlayerShooting assets/player_shooting.png
 Texture PlayerRunningShooting assets/player_running_shooting.png
@@ -21,12 +21,6 @@ Texture PlayerFalling assets/player_falling.png
 
 Texture Buller assets/bullet.png
 Texture GunFire assets/gun_fire.png
-
-Texture Standing assets/standing.png
-Texture Running assets/running.png
-Texture Jumping assets/jumping.png
-Texture Shooting assets/shooting.png
-Texture RunningShooting assets/running_shooting.png
 
 Texture Enemy assets/enemy_running.png
 Texture EnemyJumping assets/enemy_jumping.png
@@ -69,12 +63,6 @@ Animation PlayerFalling PlayerFalling 1 0
 
 Animation Bullet Bullet 1 0
 Animation GunFire GunFire 2 3
-
-Animation Standing Standing 2 20
-Animation Running Running 4 8
-Animation Jumping Jumping 4 5
-Animation Shooting Shooting 2 3
-Animation RunningShooting RunningShooting 4 8
 
 Animation Enemy Enemy 7 6
 Animation EnemyJumping EnemyJumping 5 6

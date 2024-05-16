@@ -129,7 +129,7 @@ Dec Bush 6  6
 Dec Bush 7  6
 Dec Bush 8  6
 Dec Bush 9  6
-Dec Bush 10 6
+Tile Cobblestone 10 6
 Dec Bush 11 6
 Dec Bush 12 6
 Dec Bush 13 6
