@@ -10,7 +10,7 @@ class Scene_Play : public Scene
 {
     struct PlayerConfig
     {
-        float X, Y, CW, CH, SPEED, MAXSPEED, JUMP, GRAVITY;
+        float X, Y, CW, CH, SPEED, MAXSPEED, JUMP, GRAVITY, SCALE;
         std::string WEAPON;
     };
 
@@ -42,6 +42,7 @@ public:
     void sCollision();
     void sAnimation();
     void onEnd();
+    void sCollisionHelper(std::shared_ptr<Entity> entity, std::shared_ptr<Entity> e);
     size_t width() const;
     size_t height() const;
 };

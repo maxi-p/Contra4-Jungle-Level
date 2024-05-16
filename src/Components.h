@@ -45,6 +45,7 @@ public:
     bool left       = false;
     bool right      = false;
     bool shoot      = false;
+    bool shift      = false;
     bool canShoot   = true;
     bool canJump    = true;
 
@@ -82,7 +83,8 @@ public:
 class CState : public Component
 {
 public:
-    std::string state = "jumping";
+    std::string state = "DEFAULT";
+    std::string subState = "DEFAULT";
     size_t timer = 0;
     CState() {}
     CState(const std::string& s) : state(s) {}

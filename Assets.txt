@@ -8,11 +8,45 @@ Texture HalfWater assets/halfwater.png
 Texture Background assets/background.png
 Texture Bush assets/bush.png
 Texture Leave assets/leave.png
+Texture BG assets/stars_bg.jpg
+
+Texture PlayerStanding assets/player_standing.png
+Texture PlayerRunning assets/player_running1.png
+Texture PlayerJumping assets/player_jumping.png
+Texture PlayerShooting assets/player_shooting.png
+Texture PlayerRunningShooting assets/player_running_shooting.png
+Texture PlayerLying assets/player_lying.png
+Texture PlayerLyingShooting assets/player_lying_shooting.png
+Texture PlayerFalling assets/player_falling.png
+
+Texture Buller assets/bullet.png
+Texture GunFire assets/gun_fire.png
+
 Texture Standing assets/standing.png
 Texture Running assets/running.png
 Texture Jumping assets/jumping.png
 Texture Shooting assets/shooting.png
 Texture RunningShooting assets/running_shooting.png
+
+Texture Enemy assets/enemy_running.png
+Texture EnemyJumping assets/enemy_jumping.png
+Texture EnemyDying assets/enemy_dying.png
+
+Texture ShootingEnemyUp assets/shooting_enemy_up.png
+Texture ShootingEnemyDown assets/shooting_enemy_down.png
+Texture ShootingEnemyMid assets/shooting_enemy_mid.png
+Texture ShootingEnemyHigh assets/shooting_enemy_high.png
+Texture ShootingEnemyLow assets/shooting_enemy_low.png
+Texture ShootingEnemyDying assets/shooting_enemy_dying.png
+
+Texture ShootingEnemyLying assets/shooting_enemy_lying.png
+
+Texture BotUp assets/bot_up.png
+Texture BotDown assets/bot_down.png
+Texture BotMid assets/bot_mid.png
+Texture BotHigh assets/bot_high.png
+Texture BotLow assets/bot_low.png
+
 Animation Grass Grass 1 0
 Animation Cobblestone Cobblestone 1 0
 Animation HalfGrass HalfGrass 1 0
@@ -22,9 +56,43 @@ Animation HalfWater HalfWater 1 0
 Animation Background Background 1 0
 Animation Bush Bush 1 0
 Animation Leave Leave 1 0
+Animation BG BG 1 0
+
+Animation PlayerStanding PlayerStanding 1 0
+Animation PlayerRunning PlayerRunning 11 4
+Animation PlayerJumping PlayerJumping 5 4
+Animation PlayerShooting PlayerShooting 2 4
+Animation PlayerRunningShooting PlayerRunningShooting 11 4
+Animation PlayerLying PlayerLying 1 0
+Animation PlayerLyingShooting PlayerLyingShooting 2 4
+Animation PlayerFalling PlayerFalling 1 0
+
+Animation Bullet Bullet 1 0
+Animation GunFire GunFire 2 3
+
 Animation Standing Standing 2 20
 Animation Running Running 4 8
 Animation Jumping Jumping 4 5
 Animation Shooting Shooting 2 3
 Animation RunningShooting RunningShooting 4 8
+
+Animation Enemy Enemy 7 6
+Animation EnemyJumping EnemyJumping 5 6
+Animation EnemyDying EnemyDying 1 0
+
+Animation ShootingEnemyMid ShootingEnemyMid 1 0
+Animation ShootingEnemyUp ShootingEnemyUp 1 0
+Animation ShootingEnemyDown ShootingEnemyDown 1 0
+Animation ShootingEnemyHigh ShootingEnemyHigh 1 0
+Animation ShootingEnemyLow ShootingEnemyLow 1 0
+Animation ShootingEnemyDying ShootingEnemyDying 1 0
+
+Animation ShootingEnemyLying ShootingEnemyLying 1 0
+
+Animation BotUp BotUp 1 0
+Animation BotDown BotDown 1 0
+Animation BotMid BotMid 1 0
+Animation BotHigh BotHigh 1 0
+Animation BotLow BotLow 1 0
+
 Font Enchrome assets/enchrome-ascii.ttf

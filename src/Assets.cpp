@@ -68,7 +68,7 @@ sf::Texture& Assets::getTexture(std::string& name)
     return m_textures[name];
 }
 
-std::shared_ptr<Animation>Assets::getAnimation(const std::string& name)
+std::shared_ptr<Animation> Assets::getAnimation(const std::string& name)
 {
     return m_animations[name];
 }

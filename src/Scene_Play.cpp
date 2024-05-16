@@ -40,8 +40,8 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Space,     "JUMP");
     registerAction(sf::Keyboard::D,         "RIGHT");
     registerAction(sf::Keyboard::A,         "LEFT");
-
-    // TODO: register all other gameplay Actions
+    registerAction(sf::Keyboard::RShift,    "SHOOT");
+    registerAction(sf::Keyboard::LShift,    "SHIFT");
 
     m_gridText.setCharacterSize(12);
     m_gridText.setFont(m_game->assets().getFont("Enchrome"));
@@ -49,7 +49,6 @@ void Scene_Play::init(const std::string& levelPath)
     loadLevel(levelPath);
 }
 
-// animation was already given to this entity in the first place
 Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
 {
     Vec2 entitySize = entity->getComponent<CAnimation>().animation->getSize();
@@ -67,14 +66,10 @@ void Scene_Play::loadLevel(const std::string& filename)
 {
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
-
-    std::cout << filename << "\n";
-
     std::ifstream file;
     file.open(filename);
 
-    std::string type, animation, gX, gY, cW, cH, sX, sY, sM, G, B;
-    
+    std::string type, animation, gX, gY, sX, sY, sM, G, Sc, B;
     while ( file >> type )
     {
         if( type == "Tile" )
@@ -96,19 +91,42 @@ void Scene_Play::loadLevel(const std::string& filename)
         }
         else if( type == "Player" )
         {
-            file >> gX >> gY >> cW >> cH >> sX >> sY >> sM >> G >> B;
+            file >> gX >> gY >> sX >> sY >> sM >> G >> Sc >> B;
             m_playerConfig.X        = std::stof(gX);
             m_playerConfig.Y        = std::stof(gY);
-            m_playerConfig.CW       = std::stof(cW);
-            m_playerConfig.CH       = std::stof(cH);
             m_playerConfig.SPEED    = std::stof(sX);
             m_playerConfig.JUMP     = std::stof(sY);
             m_playerConfig.MAXSPEED = std::stof(sM);
             m_playerConfig.GRAVITY  = std::stof(G);
-            m_playerConfig.WEAPON   = std::stof(B);
+            m_playerConfig.SCALE    = std::stof(Sc);
+            m_playerConfig.WEAPON   = B;
         }
     }
     spawnPlayer();
+
+    // auto e = m_entityManager.addEntity("enemy");
+    // e->addComponent<CAnimation>(m_game->assets().getAnimation("EnemyJumping"), true);
+    // e->addComponent<CTransform>(Vec2(864, 200));
+    // e->getComponent<CTransform>().scale = Vec2(2.0f, 2.0f);
+    // e->addComponent<CGravity>(0.6);
+    // e->addComponent<CState>("running");
+    // e->addComponent<CBoundingBox>(m_game->assets().getAnimation("EnemyJumping")->getSize());
+
+    // e = m_entityManager.addEntity("enemy");
+    // e->addComponent<CAnimation>(m_game->assets().getAnimation("BotHigh"), true);
+    // e->addComponent<CTransform>(Vec2(764, 200));
+    // e->getComponent<CTransform>().scale = Vec2(3.0f, 3.0f);
+    // e->addComponent<CGravity>(0.6);
+    // e->addComponent<CState>("running");
+    // e->addComponent<CBoundingBox>(m_game->assets().getAnimation("BotHigh")->getSize());
+
+    // e = m_entityManager.addEntity("enemy");
+    // e->addComponent<CAnimation>(m_game->assets().getAnimation("ShootingEnemyLying"), true);
+    // e->addComponent<CTransform>(Vec2(1000, 200));
+    // e->getComponent<CTransform>().scale = Vec2(2.0f, 2.0f);
+    // e->addComponent<CGravity>(0.6);
+    // e->addComponent<CState>("aiming");
+    // e->addComponent<CBoundingBox>(m_game->assets().getAnimation("ShootingEnemyMid")->getSize());
 
     // if( brick->getComponent<CAnimation>().animation.getName() == "Brick")
     {
@@ -118,14 +136,14 @@ void Scene_Play::loadLevel(const std::string& filename)
 
 void Scene_Play::spawnPlayer()
 {
-    // here is a sample player entity which you can use to construct other entities
     m_player = m_entityManager.addEntity("player");
-    m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Running"), true);
-    m_player->addComponent<CTransform>(Vec2(464, 200));
-    m_player->addComponent<CState>("standing");
-    m_player->addComponent<CGravity>(0.6);
-    Vec2 skinnySize(m_game->assets().getAnimation("Running")->getSize().x/2, m_game->assets().getAnimation("Grass")->getSize().y);
-    m_player->addComponent<CBoundingBox>(skinnySize);
+    m_player->addComponent<CAnimation>(m_game->assets().getAnimation("PlayerFalling"), true);
+    m_player->addComponent<CTransform>(gridToMidPixel(m_playerConfig.X, m_playerConfig.Y, m_player));
+    m_player->getComponent<CTransform>().scale = Vec2(m_playerConfig.SCALE, m_playerConfig.SCALE);
+    m_player->addComponent<CState>("AIR");
+    m_player->getComponent<CState>().subState = "CANNOT_JUMP";
+    m_player->addComponent<CGravity>(m_playerConfig.GRAVITY);
+    m_player->addComponent<CBoundingBox>(m_game->assets().getAnimation("PlayerFalling")->getSize()*m_playerConfig.SCALE);
 }
 
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
@@ -136,7 +154,6 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 void Scene_Play::update()
 {
     m_entityManager.update();
-    // // TODO: implement pause functionality
     sState();
     sMovement();
     sLifespan();
@@ -147,35 +164,28 @@ void Scene_Play::update()
 }
 void Scene_Play::sState()
 {
-    for ( auto e : m_entityManager.getEntities() )
-    {
-        if ( e->getComponent<CState>().has  && e->getComponent<CState>().timer != 0 )
-        {
-            e->getComponent<CState>().timer--;
-            
-            if( e->getComponent<CState>().timer == 0 )
-            {
-                e->getComponent<CState>().state = "falling";
-            }
-        }
-    }
+
 }
 
 
 void Scene_Play::sMovement()
 {
     Vec2 playerVelocity(0.0f, m_player->getComponent<CTransform>().velocity.y);
-    if( m_player->getComponent<CInput>().up && m_player->getComponent<CState>().state == "jumping" )
+
+    if( m_player->getComponent<CInput>().up && m_player->getComponent<CState>().subState == "CAN_JUMP")
     {
-        playerVelocity.y = -10;
+        playerVelocity.y = -m_playerConfig.JUMP;
+        m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("PlayerJumping");
+        m_player->getComponent<CState>().subState = "CANNOT_JUMP";
+        std::cout << "CsubState = CANNOT JUMP\n";
     }
     if ( m_player->getComponent<CInput>().left )
     {
-        playerVelocity.x = -7;
+        playerVelocity.x = -m_playerConfig.SPEED;
     }
     if ( m_player->getComponent<CInput>().right )
     {
-        playerVelocity.x = 7;
+        playerVelocity.x = m_playerConfig.SPEED;
     }
 
     m_player->getComponent<CTransform>().velocity = playerVelocity;
@@ -190,13 +200,21 @@ void Scene_Play::sMovement()
             e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
             
             //Max speed
-            if ( e->getComponent<CTransform>().velocity.y >= 10 )
+            if ( e->getComponent<CTransform>().velocity.y >= m_playerConfig.MAXSPEED )
             {
-                e->getComponent<CTransform>().velocity.y = 10;
+                e->getComponent<CTransform>().velocity.y = m_playerConfig.MAXSPEED;
             }
-            if ( e->getComponent<CTransform>().velocity.x >= 10 )
+            if ( e->getComponent<CTransform>().velocity.x >= m_playerConfig.MAXSPEED )
             {
-                e->getComponent<CTransform>().velocity.x = 10;
+                e->getComponent<CTransform>().velocity.x = m_playerConfig.MAXSPEED;
+            }
+            if ( e->getComponent<CTransform>().velocity.y <= -m_playerConfig.MAXSPEED )
+            {
+                e->getComponent<CTransform>().velocity.y = -m_playerConfig.MAXSPEED;
+            }
+            if ( e->getComponent<CTransform>().velocity.x <= -m_playerConfig.MAXSPEED )
+            {
+                e->getComponent<CTransform>().velocity.x = -m_playerConfig.MAXSPEED;
             }
         }
         e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
@@ -205,64 +223,68 @@ void Scene_Play::sMovement()
 
 void Scene_Play::sLifespan()
 {
-    // TODO: check lifespan of entitites that have them, and destroy them if they go over
+    
 }
 
 void Scene_Play::sCollision()
 {
     for ( auto e : m_entityManager.getEntities() )
     {
-        if ( e->tag() != m_player->tag() && e->getComponent<CBoundingBox>().has )
+        sCollisionHelper(m_player, e);
+        
+        for ( auto enemy : m_entityManager.getEntities("enemy"))
         {
-            Vec2 overlap = m_physics.GetOverlap(m_player, e);
+            sCollisionHelper(enemy, e);
+        }
+    }
+}
+void Scene_Play::sCollisionHelper(std::shared_ptr<Entity> entity, std::shared_ptr<Entity> e)
+{
+        if ( e->tag() != entity->tag() && e->getComponent<CBoundingBox>().has )
+        {
+            Vec2 overlap = m_physics.GetOverlap(entity, e);
             if( overlap >= 0 )
             {
-                Vec2 prevOverlap = m_physics.GetPreviousOverlap(m_player, e);
+                Vec2 prevOverlap = m_physics.GetPreviousOverlap(entity, e);
                 if (prevOverlap.x > 0)
                 {
-                    if (m_player->getComponent<CTransform>().pos.y < e->getComponent<CTransform>().pos.y)
+                    if (entity->getComponent<CTransform>().pos.y < e->getComponent<CTransform>().pos.y)
                     {
-                        m_player->getComponent<CTransform>().pos.y -= overlap.y;
-                        if( m_player->getComponent<CState>().state != "running" )
+                        if ( entity->tag() == m_player->tag() && m_player->getComponent<CState>().subState == "CANNOT_JUMP")
                         {
-                            m_player->getComponent<CState>().state = "standing";
-                            m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Standing");
-                            m_player->getComponent<CState>().timer = 0;
+                            if ( !m_player->getComponent<CInput>().up )
+                            {
+                                m_player->getComponent<CState>().state = "LAND";
+                            }
+                            m_player->getComponent<CState>().subState   = "CAN_JUMP";
+                            if (!m_player->getComponent<CInput>().left && !m_player->getComponent<CInput>().right)
+                            {
+                                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("PlayerStanding");
+                            }
+                            else{
+                                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("PlayerRunning");
+                            }
                         }
-                        else
-                        {
-                            m_player->getComponent<CState>().state = "running";
-                            m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
-                            m_player->getComponent<CState>().timer = 0;
-                        }
+                        entity->getComponent<CTransform>().pos.y -= overlap.y;
                     }
                     else
                     {
-                        m_player->getComponent<CTransform>().pos.y += overlap.y;
+                        entity->getComponent<CTransform>().pos.y += overlap.y;
                     }
                 }
                 else if (prevOverlap.y > 0)
                 {
-                    if (m_player->getComponent<CTransform>().pos.x < e->getComponent<CTransform>().pos.x )
+                    if (entity->getComponent<CTransform>().pos.x < e->getComponent<CTransform>().pos.x )
                     {
-                        m_player->getComponent<CTransform>().pos.x -= overlap.x;
+                        entity->getComponent<CTransform>().pos.x -= overlap.x;
                     }
                     else 
                     {
-                        m_player->getComponent<CTransform>().pos.x += overlap.x;
+                        entity->getComponent<CTransform>().pos.x += overlap.x;
                     }
                 }
             }
         }
-    }
-    // TODO: Implement bullet / tile collisions
-    //
-    // TODO: Imlement player / tile collision and resolutions
-    //
-    //
-    //
-    // TODO: Check to see if the player has falled down a hole (y > height())
-    // TODO: Don't let the player walk off the left side of the map
 }
 
 void Scene_Play::sDoAction(const Action& action)
@@ -283,36 +305,28 @@ void Scene_Play::sDoAction(const Action& action)
         }
         else if (action.name() == "JUMP" )             
         { 
-            if( m_player->getComponent<CState>().state != "falling" )
+            if ( m_player->getComponent<CState>().state == "LAND" && m_player->getComponent<CState>().subState == "CAN_JUMP" )
             {
-                if ( m_player->getComponent<CState>().state != "jumping" )
-                {
-                    m_player->getComponent<CState>().timer = 15;
-                    m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Jumping");
-                }
-                m_player->getComponent<CState>().state = "jumping";
+                m_player->getComponent<CState>().state = "AIR";
+                std::cout << "CState = AIR\n"; 
                 m_player->getComponent<CInput>().up = true;
             }
         }
         else if (action.name() == "RIGHT" )             
         { 
-            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
-            {
-                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
-                m_player->getComponent<CState>().state = "running";
-                m_player->getComponent<CState>().timer = 0;
-            }
             m_player->getComponent<CInput>().right = true; 
+            if ( m_player->getComponent<CState>().state != "AIR" )
+            {
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("PlayerRunning");
+            }
         }
         else if (action.name() == "LEFT" )             
         { 
-            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
-            {
-                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Running");
-                m_player->getComponent<CState>().state = "running";
-                m_player->getComponent<CState>().timer = 0;
-            }
             m_player->getComponent<CInput>().left = true; 
+            if ( m_player->getComponent<CState>().state != "AIR" )
+            {
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("PlayerRunning");
+            }
         }
         else if (action.name() == "PAUSE" )            
         { 
@@ -322,33 +336,29 @@ void Scene_Play::sDoAction(const Action& action)
         { 
             onEnd(); 
         }
-
     }
     else if (action.type() == "END")
     {
         if (action.name() == "JUMP" )             
         { 
             m_player->getComponent<CInput>().up = false; 
+            std::cout << "CInput = false\n";
         }
         else if (action.name() == "RIGHT" )             
-        { 
-            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
-            {
-                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Standing");
-                m_player->getComponent<CState>().state = "standing";
-                m_player->getComponent<CState>().timer = 0;
-            }
+        {   
             m_player->getComponent<CInput>().right = false; 
+            if (!m_player->getComponent<CInput>().left && m_player->getComponent<CState>().state != "AIR")
+            {
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("PlayerStanding");
+            }
         }
         else if (action.name() == "LEFT" )             
         { 
-            if( m_player->getComponent<CState>().state != "jumping" && m_player->getComponent<CState>().state != "falling")
-            {
-                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("Standing");
-                m_player->getComponent<CState>().state = "standing";
-                m_player->getComponent<CState>().timer = 0;
-            }
             m_player->getComponent<CInput>().left = false; 
+            if (!m_player->getComponent<CInput>().right && m_player->getComponent<CState>().state != "AIR")
+            {
+                m_player->getComponent<CAnimation>().animation = m_game->assets().getAnimation("PlayerStanding");
+            }
         }
     }
 }
@@ -403,7 +413,7 @@ void Scene_Play::sRender()
     {
         for( auto e : m_entityManager.getEntities() )
         {
-            for( auto e : m_entityManager.getEntities() )
+            if ( e->getComponent<CBoundingBox>().has )
             {
                 auto& box = e->getComponent<CBoundingBox>();
                 auto& transform = e->getComponent<CTransform>();
@@ -415,7 +425,6 @@ void Scene_Play::sRender()
                 rect.setOutlineColor(sf::Color(255, 255 ,255, 255));
                 rect.setOutlineThickness(1);
                 m_game->window().draw(rect);
-
             }
         }
     }
