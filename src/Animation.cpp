@@ -20,7 +20,6 @@ Animation::Animation(const std::string& name, const sf::Texture& t, size_t frame
     m_currentFrame(0),
     m_speed(speed)
 {
-
     m_size = Vec2((float)t.getSize().x / frameCount, (float)t.getSize().y);
     m_sprite.setOrigin(m_size.x / 2.0f, m_size.y / 2.0f);
     m_sprite.setTextureRect(sf::IntRect(std::floor(m_currentFrame)* m_size.x, 0, m_size.x, m_size.y));
@@ -36,6 +35,7 @@ void Animation::update()
         if ( m_gameFrame - m_lastUpdate >= m_speed )
         {
             size_t correctFrame = m_currentFrame % m_frameCount;
+            // maybe set origin too?
             m_sprite.setTextureRect(sf::IntRect(correctFrame*m_size.x, 0, m_size.x, m_size.y));
             m_lastUpdate = m_gameFrame;
             m_currentFrame++;

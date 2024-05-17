@@ -57,9 +57,19 @@ class CBoundingBox : public Component
 public:
     Vec2 size;
     Vec2 halfSize;
+    Vec2 prevSize;
+    Vec2 prevHalfSize;
+    bool switching      = false;
     CBoundingBox() {}
     CBoundingBox(const Vec2& s)
-        : size(s), halfSize(s.x/2, s.y/2) {}
+        : size(s), halfSize(s/2) {}
+    void setSize(const Vec2& s)
+    {
+        prevSize = size;
+        prevHalfSize = Vec2(halfSize.x,halfSize.y) ;
+        size = s;
+        halfSize = s/2;
+    }
 };
 
 class CAnimation : public Component
@@ -87,5 +97,6 @@ public:
     std::string subState = "DEFAULT";
     size_t timer = 0;
     CState() {}
-    CState(const std::string& s) : state(s) {}
+    CState(const std::string& state) : state(state) {}
+    CState(const std::string& state, const std::string& subState) : state(state), subState(subState) {}
 };
