@@ -19,7 +19,7 @@ Texture PlayerLying assets/player_lying.png
 Texture PlayerLyingShooting assets/player_lying_shooting.png
 Texture PlayerFalling assets/player_falling.png
 
-Texture Buller assets/bullet.png
+Texture Bullet assets/bullet.png
 Texture GunFire assets/gun_fire.png
 
 Texture Enemy assets/enemy_running.png

@@ -16,6 +16,7 @@ class Scene_Play : public Scene
 
 public:
     std::shared_ptr<Entity>     m_player;
+    size_t                      m_coolDown = 0;
     std::string                 m_levelPath;
     PlayerConfig                m_playerConfig;
     bool                        m_drawTextures      = true;

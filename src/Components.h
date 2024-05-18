@@ -24,14 +24,13 @@ public:
         : pos(p) {}
     CTransform (const Vec2& p, const Vec2& sp, const Vec2& sc, float a)
         : pos(p), velocity(sp), scale(sc), angle(a){}
-
 };
 
 class CLifeSpan : public Component
 {
 public:
-    int lifespan   = 0;
-    int frameCreated       = 0;
+    int lifespan        = 0;
+    int frameCreated    = 0;
     CLifeSpan() {}
     CLifeSpan(int duration, int frame)
         : lifespan(duration), frameCreated(frame) {}

@@ -157,11 +157,19 @@ void Scene_Play::spawnPlayer()
 
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
-    // auto bullet = m_entityManager.addEntity("bullet");
-    // bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Bullet"), true);
-    // bullet->addComponent<CLifeSpan>(10, currentFrame);
-    // Vec2 position = m_player->getComponent<CTransform>().pos;
-    // bullet->addComponent<CTransform>(position);
+    // if (m_currentFrame > m_coolDown + 10 )
+    // {
+    //     auto bullet = m_entityManager.addEntity("bullet");
+    //     bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Bullet"), true);
+    //     bullet->addComponent<CLifeSpan>(30, m_currentFrame);
+    //     Vec2    position    = Vec2(m_player->getComponent<CTransform>().pos.x, m_player->getComponent<CTransform>().pos.y - m_player->getComponent<CAnimation>().animation->getSize().y*0.5/3*m_playerConfig.SCALE);
+    //     Vec2    scale       = Vec2(m_playerConfig.SCALE, m_playerConfig.SCALE);
+    //     Vec2    velocity    = Vec2(10.0f, 0.0f);
+    //     float   angle       = 0;
+    //     bullet->addComponent<CTransform>(position, velocity, scale, angle);
+
+    //     m_coolDown = m_currentFrame;
+    // }
 }
 
 void Scene_Play::update()
@@ -178,33 +186,7 @@ void Scene_Play::update()
 
 void Scene_Play::sState()
 {
-    if (m_player->getComponent<CState>().state != "AIR")
-    {
-        if ( m_player->getComponent<CInput>().shift )
-        {
-            if ( !m_player->getComponent<CInput>().shoot)
-                setPlayerAnimation("PlayerLying");
-            else
-                setPlayerAnimation("PlayerLyingShooting");
-        }
-        else
-        {
-            if (!m_player->getComponent<CInput>().left && !m_player->getComponent<CInput>().right)
-            {
-                if ( !m_player->getComponent<CInput>().shoot )
-                    setPlayerAnimation("PlayerStanding");
-                else
-                    setPlayerAnimation("PlayerShooting");
-            }
-            else
-            {
-                if ( !m_player->getComponent<CInput>().shoot )
-                    setPlayerAnimation("PlayerRunning");
-                else
-                    setPlayerAnimation("PlayerRunningShooting");
-            }
-        }
-    }
+    
 }
 
 void Scene_Play::setPlayerAnimation( std::string name )
@@ -254,9 +236,37 @@ void Scene_Play::sMovement()
         }
     }
 
+    if (m_player->getComponent<CState>().state != "AIR")
+    {
+        if ( m_player->getComponent<CInput>().shift )
+        {
+            if ( !m_player->getComponent<CInput>().shoot)
+                setPlayerAnimation("PlayerLying");
+            else
+                setPlayerAnimation("PlayerLyingShooting");
+        }
+        else
+        {
+            if (!m_player->getComponent<CInput>().left && !m_player->getComponent<CInput>().right)
+            {
+                if ( !m_player->getComponent<CInput>().shoot )
+                    setPlayerAnimation("PlayerStanding");
+                else
+                    setPlayerAnimation("PlayerShooting");
+            }
+            else
+            {
+                if ( !m_player->getComponent<CInput>().shoot )
+                    setPlayerAnimation("PlayerRunning");
+                else
+                    setPlayerAnimation("PlayerRunningShooting");
+            }
+        }
+    }
+
     if ( m_player->getComponent<CInput>().shoot )
     {
-        // spawnBullet();
+        // spawnBullet(m_player);
     }
 
     m_player->getComponent<CTransform>().velocity = playerVelocity;
@@ -296,7 +306,7 @@ void Scene_Play::sLifespan()
     {
         if ( e->getComponent<CLifeSpan>().has )
         {
-            if ( m_currentFrame <= e->getComponent<CLifeSpan>().frameCreated + e->getComponent<CLifeSpan>().lifespan )
+            if ( m_currentFrame > e->getComponent<CLifeSpan>().frameCreated + e->getComponent<CLifeSpan>().lifespan )
             {
                 e->destroy();
             }
