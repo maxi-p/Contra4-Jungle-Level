@@ -44,6 +44,8 @@ public:
     void sCollision();
     void sAnimation();
     void onEnd();
+    bool isBg(std::shared_ptr<Entity> e);
+    void printBg(std::shared_ptr<Entity> block);
     void maxSpeed(std::shared_ptr<Entity> entity);
     void sCollisionHelper(std::shared_ptr<Entity> entity, std::shared_ptr<Entity> e);
     size_t width() const;
